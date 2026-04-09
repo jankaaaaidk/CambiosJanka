@@ -1,0 +1,48 @@
+from flask import Flask, jsonify
+from flask_cors import CORS
+import requests
+
+app = Flask(__name__)
+CORS(app)  # 👈 ESTO SOLUCIONA TODO
+
+@app.route("/precio")
+def precio():
+    try:
+        url = "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search"
+
+        # ARS
+        data_ars = {
+            "asset": "USDT",
+            "fiat": "ARS",
+            "tradeType": "SELL",
+            "page": 1,
+            "rows": 10
+        }
+
+        r1 = requests.post(url, json=data_ars).json()
+        precios_ars = [float(i["adv"]["price"]) for i in r1["data"]][1:4]
+        promedio_ars = sum(precios_ars) / 3
+
+        # USD
+        data_usd = {
+            "asset": "USDT",
+            "fiat": "USD",
+            "tradeType": "BUY",
+            "page": 1,
+            "rows": 10,
+            "payTypes": ["Pichincha"]
+        }
+
+        r2 = requests.post(url, json=data_usd).json()
+        precios_usd = [float(i["adv"]["price"]) for i in r2["data"]][1:4]
+        promedio_usd = sum(precios_usd) / 3
+
+        ajuste = max(0, promedio_usd - 1)
+        tipo_final = promedio_ars * (1 - ajuste)
+
+        return jsonify({"tipo": tipo_final})
+
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+app.run(port=5000)
