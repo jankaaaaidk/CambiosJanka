@@ -1,9 +1,14 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 import requests
+import os
 
 app = Flask(__name__)
-CORS(app)  # 👈 ESTO SOLUCIONA TODO
+CORS(app)
+
+@app.route("/")
+def home():
+    return jsonify({"mensaje": "Backend funcionando 🚀", "endpoint": "/precio"})
 
 @app.route("/precio")
 def precio():
@@ -45,4 +50,6 @@ def precio():
     except Exception as e:
         return jsonify({"error": str(e)})
 
-app.run(port=5000)
+# 🔥 IMPORTANTE PARA RENDER
+port = int(os.environ.get("PORT", 10000))
+app.run(host="0.0.0.0", port=port)
