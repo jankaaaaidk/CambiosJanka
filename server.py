@@ -26,24 +26,20 @@ def precio():
             "rows": 10
         }
 
-        r1 = requests.post(url, json=data_ars).json()
-
+        r1 = requests.post(url, json=data_ars, timeout=10).json()
         precios_ars = [float(i["adv"]["price"]) for i in r1.get("data", [])]
-
-        # eliminar outliers (ej: anuncios comerciales absurdos)
-        if precios_ars:
-            min_ars = min(precios_ars)
-            precios_ars = [p for p in precios_ars if p < min_ars * 1.02]
-
-        precios_ars = precios_ars[:3]
 
         if not precios_ars:
             return jsonify({"error": "No hay precios ARS"})
 
+        # ordenar y tomar los 3 más baratos
+        precios_ars.sort()
+        precios_ars = precios_ars[:3]
+
         promedio_ars = sum(precios_ars) / len(precios_ars)
 
         # ======================
-        # USD (SIN payTypes)
+        # USD (filtrado manual Pichincha)
         # ======================
         data_usd = {
             "asset": "USDT",
@@ -53,25 +49,23 @@ def precio():
             "rows": 10
         }
 
-        r2 = requests.post(url, json=data_usd).json()
+        r2 = requests.post(url, json=data_usd, timeout=10).json()
 
         precios_usd = []
 
         for i in r2.get("data", []):
             metodos = [m["tradeMethodName"] for m in i["adv"]["tradeMethods"]]
 
-            # filtrar solo Pichincha
             if any("Pichincha" in m for m in metodos):
                 precios_usd.append(float(i["adv"]["price"]))
 
-        # eliminar outliers
-        if precios_usd:
-            min_usd = min(precios_usd)
-            precios_usd = [p for p in precios_usd if p < min_usd * 1.02]
+        # ignorar el primer anuncio (comercial inflado)
+        precios_usd = precios_usd[1:]
 
+        # tomar hasta 3
         precios_usd = precios_usd[:3]
 
-        # fallback si no hay datos
+        # fallback
         if not precios_usd:
             promedio_usd = 1
         else:
