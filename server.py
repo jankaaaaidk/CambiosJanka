@@ -32,7 +32,7 @@ def precio():
         data_usd = {
             "asset": "USDT",
             "fiat": "USD",
-            "tradeType": "BUY",
+            "tradeType": "SELL",
             "page": 1,
             "rows": 10,
             "payTypes": ["Pichincha"]
