@@ -45,14 +45,16 @@ def precio():
         ajuste = max(0, promedio_usd - 1)
         tipo_final = promedio_ars * (1 - ajuste)
 
+        print("USD RAW:", [i["adv"]["price"] for i in r2["data"][:5]])
+        print("USD USADOS:", precios_usd)
+        print("PROMEDIO USD:", promedio_usd)
+
         return jsonify({"tipo": tipo_final})
 
     except Exception as e:
         return jsonify({"error": str(e)})
 
-print("USD RAW:", [i["adv"]["price"] for i in r2["data"][:5]])
-print("USD USADOS:", precios_usd)
-print("PROMEDIO USD:", promedio_usd)
+
 
 # 🔥 IMPORTANTE PARA RENDER
 port = int(os.environ.get("PORT", 10000))
