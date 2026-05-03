@@ -43,7 +43,7 @@ def precio():
         promedio_usd = sum(precios_usd) / 3
 
         ajuste = max(0, promedio_usd - 1)
-        tipo_final = promedio_ars * (1 - ajuste) + 9999
+        tipo_final = promedio_ars * (1 - ajuste)
 
         return jsonify({"tipo": tipo_final})
 
