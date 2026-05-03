@@ -45,11 +45,17 @@ def precio():
         ajuste = max(0, promedio_usd - 1)
         tipo_final = promedio_ars * (1 - ajuste)
 
-        print("USD RAW:", [i["adv"]["price"] for i in r2["data"][:5]])
-        print("USD USADOS:", precios_usd)
-        print("PROMEDIO USD:", promedio_usd)
-
-        return jsonify({"tipo": tipo_final})
+        
+        return jsonify({
+        "tipo": tipo_final,
+        "debug": {
+        "usd_raw": [i["adv"]["price"] for i in r2["data"][:5]],
+        "usd_usados": precios_usd,
+        "promedio_usd": promedio_usd,
+        "ars_usados": precios_ars,
+        "promedio_ars": promedio_ars,
+        "ajuste": ajuste
+        }})
 
     except Exception as e:
         return jsonify({"error": str(e)})
