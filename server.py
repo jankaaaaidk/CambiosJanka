@@ -88,7 +88,7 @@ def precio():
                 "promedio_ars": promedio_ars,
                 "usd_filtrados_pichincha": precios_usd,
                 "promedio_usd": promedio_usd,
-                "ajuste": ajuste
+                "ajuste": ajuste,
                 "metodos_detectados": [
                 m["tradeMethodName"]
                 for i in r2.get("data", [])
