@@ -8,7 +8,7 @@ CORS(app)
 
 @app.route("/")
 def home():
-    return jsonify({"mensaje": "Backend funcionando 🚀", "endpoint": "/precio"})
+    return jsonify({"mensaje": "Backend funcionando :v🚀", "endpoint": "/precio"})
 
 @app.route("/precio")
 def precio():
@@ -32,14 +32,13 @@ def precio():
         if not precios_ars:
             return jsonify({"error": "No hay precios ARS"})
 
-        # ordenar y tomar los 3 más baratos
-        precios_ars.sort()
+        precios_ars.sort(reverse=True)  # 👈 más caros primero
         precios_ars = precios_ars[:3]
 
         promedio_ars = sum(precios_ars) / len(precios_ars)
 
         # ======================
-        # USD (filtrado manual Pichincha)
+        # USD (Pichincha)
         # ======================
         data_usd = {
             "asset": "USDT",
@@ -59,17 +58,22 @@ def precio():
             if any("Pichincha" in m for m in metodos):
                 precios_usd.append(float(i["adv"]["price"]))
 
-        # ignorar el primer anuncio (comercial inflado)
-        precios_usd = precios_usd[1:]
-
-        # tomar hasta 3
-        precios_usd = precios_usd[:3]
-
-        # fallback
         if not precios_usd:
             promedio_usd = 1
         else:
-            promedio_usd = sum(precios_usd) / len(precios_usd)
+            # 👇 ordenar de mayor a menor
+            precios_usd.sort(reverse=True)
+
+            # ❌ quitar el más caro (outlier tipo 1.090)
+            precios_usd = precios_usd[1:]
+
+            # ✅ tomar los siguientes 3 más caros
+            precios_usd = precios_usd[:3]
+
+            if not precios_usd:
+                promedio_usd = 1
+            else:
+                promedio_usd = sum(precios_usd) / len(precios_usd)
 
         # ======================
         # CALCULO FINAL
