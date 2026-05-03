@@ -8,7 +8,7 @@ CORS(app)
 
 @app.route("/")
 def home():
-    return jsonify({"mensaje": "Backend funcionando 🚀", "endpoint": "/precio"})
+    return jsonify({"mensaje": "Backend funcionando :v🚀", "endpoint": "/precio"})
 
 @app.route("/precio")
 def precio():
