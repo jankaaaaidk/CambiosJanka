@@ -89,8 +89,12 @@ def precio():
                 "usd_filtrados_pichincha": precios_usd,
                 "promedio_usd": promedio_usd,
                 "ajuste": ajuste
-            }
-        })
+                "metodos_detectados": [
+                m["tradeMethodName"]
+                for i in r2.get("data", [])
+                for m in i["adv"]["tradeMethods"]]
+                }
+                })
 
     except Exception as e:
         return jsonify({"error": str(e)})
