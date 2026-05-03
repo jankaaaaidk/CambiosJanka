@@ -32,42 +32,48 @@ def precio():
         if not precios_ars:
             return jsonify({"error": "No hay precios ARS"})
 
-        precios_ars.sort(reverse=True)  # 👈 más caros primero
+        # más caros primero
+        precios_ars.sort(reverse=True)
         precios_ars = precios_ars[:3]
 
         promedio_ars = sum(precios_ars) / len(precios_ars)
 
         # ======================
-        # USD (Pichincha)
+        # USD (buscar Pichincha en varias páginas)
         # ======================
-        data_usd = {
-            "asset": "USDT",
-            "fiat": "USD",
-            "tradeType": "SELL",
-            "page": 1,
-            "rows": 10
-        }
-
-        r2 = requests.post(url, json=data_usd, timeout=10).json()
-
         precios_usd = []
 
-        for i in r2.get("data", []):
-            metodos = [m["tradeMethodName"] for m in i["adv"]["tradeMethods"]]
+        for page in range(1, 6):  # buscar hasta 5 páginas
+            data_usd = {
+                "asset": "USDT",
+                "fiat": "USD",
+                "tradeType": "SELL",
+                "page": page,
+                "rows": 10
+            }
 
-            if any("Pichincha" in m for m in metodos):
-                precios_usd.append(float(i["adv"]["price"]))
+            r2 = requests.post(url, json=data_usd, timeout=10).json()
+
+            for i in r2.get("data", []):
+                metodos = [m["tradeMethodName"] for m in i["adv"]["tradeMethods"]]
+
+                if any("pichincha" in m.lower() for m in metodos):
+                    precios_usd.append(float(i["adv"]["price"]))
+
+            # parar si ya tenemos suficientes datos
+            if len(precios_usd) >= 4:
+                break
 
         if not precios_usd:
             promedio_usd = 1
         else:
-            # 👇 ordenar de mayor a menor
+            # ordenar de mayor a menor
             precios_usd.sort(reverse=True)
 
-            # ❌ quitar el más caro (outlier tipo 1.090)
+            # quitar el más alto (outlier tipo 1.090)
             precios_usd = precios_usd[1:]
 
-            # ✅ tomar los siguientes 3 más caros
+            # tomar los siguientes 3 más altos
             precios_usd = precios_usd[:3]
 
             if not precios_usd:
@@ -88,13 +94,9 @@ def precio():
                 "promedio_ars": promedio_ars,
                 "usd_filtrados_pichincha": precios_usd,
                 "promedio_usd": promedio_usd,
-                "ajuste": ajuste,
-                "metodos_detectados": [
-                m["tradeMethodName"]
-                for i in r2.get("data", [])
-                for m in i["adv"]["tradeMethods"]]
-                }
-                })
+                "ajuste": ajuste
+            }
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)})
