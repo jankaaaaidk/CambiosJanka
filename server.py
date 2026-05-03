@@ -50,6 +50,10 @@ def precio():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+print("USD RAW:", [i["adv"]["price"] for i in r2["data"][:5]])
+print("USD USADOS:", precios_usd)
+print("PROMEDIO USD:", promedio_usd)
+
 # 🔥 IMPORTANTE PARA RENDER
 port = int(os.environ.get("PORT", 10000))
 app.run(host="0.0.0.0", port=port)
