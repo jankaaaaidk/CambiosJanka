@@ -70,7 +70,7 @@ def precio():
         # CALCULO FINAL
         # ======================
         ajuste = max(0, promedio_usd - 1)
-        tipo_final = promedio_ars * (0.995) #1 - ajuste
+        tipo_final = promedio_ars * (1) #1 - ajuste
 
         return jsonify({
             "tipo": tipo_final,
